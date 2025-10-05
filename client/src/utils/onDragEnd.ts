@@ -1,6 +1,7 @@
 import type { DropResult } from "@hello-pangea/dnd";
 import axios from "axios";
 import type { Columns } from "../types/Columns";
+import { API_URL } from "../constants/apiUrl";
 
 export const onDragEnd = async (
   result: DropResult,
@@ -27,7 +28,7 @@ export const onDragEnd = async (
   }));
 
   try {
-    await axios.patch(`http://localhost:3000/bills/${moved.number}/status`, {
+    await axios.patch(`${API_URL}/bills/${moved.number}/status`, {
       status: destination.droppableId as "new" | "processed",
     });
   } catch (err) {

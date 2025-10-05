@@ -6,7 +6,7 @@ export default defineConfig({
   root: path.resolve(__dirname, "client"),
   plugins: [react()],
   server: {
-    port: 5137, // можна змінити, якщо потрібно
+    port: 5137,
   },
   build: {
     outDir: path.resolve(__dirname, "dist"),
