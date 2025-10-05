@@ -5,15 +5,21 @@ import fs from "fs";
 
 const app = express();
 app.use(cors());
-app.use(express.json()); // глобальний парсер JSON
+app.use(express.json());
 
 const PORT = 3000;
 const url = "https://itd.rada.gov.ua/billinfo/Bills/period";
+const KEYWORDS_FILE = "server/keyWords.json";
+const DATA_FILE = "server/storedBills.json";
 
 // Завантажуємо ключові слова для пріоритетів
-const priorityKeywords = JSON.parse(
-  fs.readFileSync("server/keyWords.json", "utf-8")
-);
+const priorityKeywords = JSON.parse(fs.readFileSync(KEYWORDS_FILE, "utf-8"));
+
+// Завантажуємо закони з JSON, якщо файл існує
+let storedBills = [];
+if (fs.existsSync(DATA_FILE)) {
+  storedBills = JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
+}
 
 // Функція для визначення пріоритету
 function getPriority(text) {
@@ -26,9 +32,6 @@ function getPriority(text) {
     return "low";
   return "low"; // дефолтний пріоритет
 }
-
-// Масив для збереження законів у пам'яті
-let storedBills = [];
 
 // Функція скрапінгу
 async function scrapeAllBills() {
@@ -75,17 +78,24 @@ async function scrapeAllBills() {
   return bills;
 }
 
-// GET /bills – отримати всі закони
+// GET /bills – повертає всі закони
 app.get("/bills", async (req, res) => {
   try {
-    const bills = await scrapeAllBills();
+    const scrapedBills = await scrapeAllBills();
 
-    // Додаємо priority і статус
-    storedBills = bills.map((bill) => ({
-      ...bill,
-      priority: getPriority(bill.title + " " + bill.number),
-      status: "new",
-    }));
+    // Додаємо нові закони, яких ще немає в storedBills
+    scrapedBills.forEach((bill) => {
+      if (!storedBills.find((b) => b.number === bill.number)) {
+        storedBills.push({
+          ...bill,
+          priority: getPriority(bill.title + " " + bill.number),
+          status: "new",
+        });
+      }
+    });
+
+    // Зберігаємо у файл
+    fs.writeFileSync(DATA_FILE, JSON.stringify(storedBills, null, 2), "utf-8");
 
     res.json(storedBills);
   } catch (err) {
@@ -94,7 +104,7 @@ app.get("/bills", async (req, res) => {
   }
 });
 
-// PATCH /bills/:number/status – оновити статус закону
+// PATCH /bills/:number/status – оновлює статус закону
 app.patch("/bills/:number/status", (req, res) => {
   const { number } = req.params;
   const { status } = req.body;
@@ -103,6 +113,9 @@ app.patch("/bills/:number/status", (req, res) => {
   if (!bill) return res.status(404).json({ error: "Bill not found" });
 
   bill.status = status;
+
+  fs.writeFileSync(DATA_FILE, JSON.stringify(storedBills, null, 2), "utf-8");
+
   res.json(bill);
 });
 
