@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "puppeteer install",
     "server": "nodemon server/server.js",
     "client": "vite",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
