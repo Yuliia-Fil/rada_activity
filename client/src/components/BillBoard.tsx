@@ -2,20 +2,19 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import BillCard from "./BillCard";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import type { Bill } from "../types/Bill";
 
 export default function BillBoard() {
-  const [allBills, setAllBills] = useState([]);
+  const [allBills, setAllBills] = useState<Bill[]>([]);
   const [columns, setColumns] = useState({
     new: { name: "Нові закони", items: [] },
     processed: { name: "Опрацьовані закони", items: [] },
   });
   const [loading, setLoading] = useState(true);
 
-  // Фільтри
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
 
-  // Завантажуємо закони з сервера
   useEffect(() => {
     const fetchBills = async () => {
       try {
@@ -31,14 +30,13 @@ export default function BillBoard() {
     fetchBills();
   }, [dateFilter, priorityFilter]);
 
-  // Фільтрація
   const applyFilters = (bills, priority, date) => {
     const formatBillDate = (billDate: string) => {
       const [day, month, year] = billDate.split(".");
       return `${year}-${month}-${day}`;
     };
 
-    const filterBill = (bill) => {
+    const filterBill = (bill: Bill) => {
       const priorityMatch = priority === "all" || bill.priority === priority;
       const dateMatch = !date || formatBillDate(bill.date) === date;
       return priorityMatch && dateMatch;
@@ -56,7 +54,6 @@ export default function BillBoard() {
     });
   };
 
-  // Оновлення фільтрів
   useEffect(() => {
     applyFilters(allBills, priorityFilter, dateFilter);
   }, [priorityFilter, dateFilter, allBills]);
@@ -91,39 +88,87 @@ export default function BillBoard() {
     }
   };
 
-  if (loading) return <p>Loading bills...</p>;
+  if (loading)
+    return <p style={{ color: "#111827" }}>Завантажуємо останні закони...</p>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Канбан-дошка законів</h1>
+    <div>
+      <h1 style={{ color: "#111827" }}>Закони за поточний тиждень</h1>
 
-      {/* Фільтри */}
-      <div style={{ marginBottom: "16px", display: "flex", gap: "16px" }}>
-        <div>
-          <label>Пріорітет:</label>
+      <div
+        style={{
+          display: "flex",
+          gap: "24px",
+          marginBottom: "24px",
+          width: "100%",
+        }}
+      >
+        {/* Фільтр по пріоритету */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            minWidth: "200px",
+          }}
+        >
+          <label style={{ fontWeight: 600, color: "#374151" }}>
+            Пріорітет:
+          </label>
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
+            style={{
+              padding: "8px 12px",
+              borderRadius: "8px",
+              border: "1px solid #d1d5db",
+              fontSize: "0.95rem",
+              backgroundColor: "#f9fafb",
+              cursor: "pointer",
+              flex: 1,
+            }}
           >
             <option value="all">Всі</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
+            <option value="high">Високий</option>
+            <option value="medium">Середній</option>
+            <option value="low">Низький</option>
           </select>
         </div>
-        <div>
-          <label>Дата:</label>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            minWidth: "200px",
+          }}
+        >
+          <label style={{ fontWeight: 600, color: "#374151" }}>Дата:</label>
           <input
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
+            style={{
+              padding: "8px 12px",
+              borderRadius: "8px",
+              border: "1px solid #d1d5db",
+              fontSize: "0.95rem",
+              backgroundColor: "#f9fafb",
+              cursor: "pointer",
+              flex: 1,
+            }}
           />
         </div>
       </div>
 
       {/* Канбан дошка */}
       <DragDropContext onDragEnd={onDragEnd}>
-        <div style={{ display: "flex", gap: "16px" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "24px",
+          }}
+        >
           {Object.entries(columns).map(([id, column]) => (
             <Droppable key={id} droppableId={id}>
               {(provided) => (
@@ -131,32 +176,57 @@ export default function BillBoard() {
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                   style={{
-                    backgroundColor: "#f4f4f5",
-                    padding: "10px",
-                    borderRadius: "8px",
-                    width: "50%",
-                    minHeight: "400px",
+                    backgroundColor: "rgba(59, 130, 246, 0.1)",
+                    padding: "16px",
+                    borderRadius: "12px",
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
-                  <h2>{column.name}</h2>
-                  {column.items.map((bill, index) => (
-                    <Draggable
-                      key={bill.number}
-                      draggableId={bill.number}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
+                  <h2
+                    style={{
+                      fontSize: "1.2rem",
+                      marginBottom: "32px",
+                      borderRadius: "12px",
+                      padding: "8px",
+                      backgroundColor: "rgba(59, 130, 246, 0.2)",
+                      fontWeight: 600,
+                      color: "#111827",
+                      textAlign: "center",
+                    }}
+                  >
+                    {column.name}
+                  </h2>
+                  <div style={{ flexGrow: 1 }}>
+                    {column.items.length === 0 && (
+                      <p style={{ color: "gray" }}>Немає відповідних законів</p>
+                    )}
+                    {column.items.map((bill, index) => {
+                      return (
+                        <Draggable
+                          key={bill.number}
+                          draggableId={bill.number}
+                          index={index}
                         >
-                          <BillCard bill={bill} />
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              style={{
+                                marginBottom: "12px",
+                                ...provided.draggableProps.style,
+                              }}
+                            >
+                              <BillCard bill={bill} />
+                            </div>
+                          )}
+                        </Draggable>
+                      );
+                    })}
+                    {provided.placeholder}
+                  </div>
                 </div>
               )}
             </Droppable>
