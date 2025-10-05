@@ -1,0 +1,24 @@
+.container {
+  display: flex;
+  gap: 24px;
+}
+
+.column {
+  background-color: rgba(59, 130, 246, 0.1);
+  padding: 16px;
+  border-radius: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 1.2rem;
+  margin-bottom: 32px;
+  border-radius: 12px;
+  padding: 8px;
+  background-color: rgba(59, 130, 246, 0.2);
+  font-weight: 600;
+  color: #111827;
+  text-align: center;
+}

@@ -2,15 +2,11 @@ import express from "express";
 import puppeteer from "puppeteer";
 import cors from "cors";
 import fs from "fs";
+import { DATA_FILE, KEYWORDS_FILE, PORT, URL } from "./constants/constants";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-const PORT = 3000;
-const url = "https://itd.rada.gov.ua/billinfo/Bills/period";
-const KEYWORDS_FILE = "server/keyWords.json";
-const DATA_FILE = "server/storedBills.json";
 
 // Завантажуємо ключові слова для пріоритетів
 const priorityKeywords = JSON.parse(fs.readFileSync(KEYWORDS_FILE, "utf-8"));
@@ -28,16 +24,14 @@ function getPriority(text) {
     return "high";
   if (priorityKeywords.medium.some((word) => text.includes(word.toLowerCase())))
     return "medium";
-  if (priorityKeywords.low.some((word) => text.includes(word.toLowerCase())))
-    return "low";
-  return "low"; // дефолтний пріоритет
+  return "low";
 }
 
 // Функція скрапінгу
 async function scrapeAllBills() {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto(url, { waitUntil: "networkidle2" });
+  await page.goto(URL, { waitUntil: "networkidle2" });
 
   const bills = [];
 
@@ -48,7 +42,6 @@ async function scrapeAllBills() {
       .filter(Boolean)
   );
   const maxPage = Math.max(...totalPages, 1);
-  console.log(`Найбільше сторінок: ${maxPage}`);
 
   for (let i = 1; i <= maxPage; i++) {
     if (i > 1) {
