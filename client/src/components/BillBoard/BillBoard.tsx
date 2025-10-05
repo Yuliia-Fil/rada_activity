@@ -7,6 +7,7 @@ import { applyFilters } from "../../utils/applyFilters";
 import type { Columns } from "../../types/Columns";
 import DnD from "../DnD/DnD";
 import { initialColumns } from "../../constants/initialColumns";
+import { API_URL } from "../../constants/apiUrl";
 
 import style from "./BillBoard.module.scss";
 
@@ -21,7 +22,7 @@ export default function BillBoard() {
   useEffect(() => {
     const fetchBills = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/bills");
+        const res = await axios.get(`${API_URL}/bills`);
         setAllBills(res.data);
       } catch (err) {
         console.error("Error fetching bills:", err);
