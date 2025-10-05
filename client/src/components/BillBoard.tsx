@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import BillCard from "./BillCard";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"; // або react-beautiful-dnd
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 export default function BillBoard() {
   const [allBills, setAllBills] = useState([]);
@@ -29,16 +29,11 @@ export default function BillBoard() {
       }
     };
     fetchBills();
-  }, []);
-
-  const formatBillDate = (billDate) => {
-    const [day, month, year] = billDate.split(".");
-    return `${year}-${month}-${day}`; // YYYY-MM-DD
-  };
+  }, [dateFilter, priorityFilter]);
 
   // Фільтрація
   const applyFilters = (bills, priority, date) => {
-    const formatBillDate = (billDate) => {
+    const formatBillDate = (billDate: string) => {
       const [day, month, year] = billDate.split(".");
       return `${year}-${month}-${day}`;
     };
