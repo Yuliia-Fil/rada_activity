@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import BillCard from "./BillCard";
+import BillCard from "./BillCard/BillCard";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { Bill } from "../types/Bill";
-import PriorityFilter from "./PriorityFilter";
-import DateFilter from "./DateFilter";
+import PriorityFilter from "./filters/PriorityFilter";
+import DateFilter from "./filters/DateFilter";
 import { applyFilters } from "../utils/applyFilters";
 import { onDragEnd } from "../utils/onDragEnd";
 import type { Columns } from "../types/Columns";

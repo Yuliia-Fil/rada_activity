@@ -3,29 +3,16 @@ interface Props {
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }
 
+import style from "./Filters.module.scss";
+
 export default function PriorityFilter({ filter, setFilter }: Props) {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        minWidth: "200px",
-      }}
-    >
-      <label style={{ fontWeight: 600, color: "#374151" }}>Пріорітет:</label>
+    <div className={style.container}>
+      <label className={style.label}>Пріорітет:</label>
       <select
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
-        style={{
-          padding: "8px 12px",
-          borderRadius: "8px",
-          border: "1px solid #d1d5db",
-          fontSize: "0.95rem",
-          backgroundColor: "#f9fafb",
-          cursor: "pointer",
-          flex: 1,
-        }}
+        className={style.input}
       >
         <option value="all">Всі</option>
         <option value="high">Високий</option>
